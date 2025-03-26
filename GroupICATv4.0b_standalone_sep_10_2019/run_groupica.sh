@@ -11,25 +11,22 @@ if [ "x$1" = "x" ]; then
   echo Usage:
   echo    $0 \<deployedMCRroot\> args
 else
-  #MCRROOT="/usr/local/MATLAB/MATLAB_Runtime"
+  echo Setting up environment variables
+  MCRROOT="$1"
   echo ---
   LD_LIBRARY_PATH=.:${MCRROOT}/runtime/glnxa64 ;
   LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRROOT}/bin/glnxa64 ;
   LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRROOT}/sys/os/glnxa64;
   LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MCRROOT}/sys/opengl/lib/glnxa64;
   export LD_LIBRARY_PATH;
-  #XAPPLRESDIR=${MCROOT}/v91/X11/app-defaults;
-  #export XAPPLRESDIR;
   echo LD_LIBRARY_PATH is ${LD_LIBRARY_PATH};
-  echo MCRROOT is $MCRROOT;
   shift 1
   args=
   while [ $# -gt 0 ]; do
       token=$1
-      args="${args} \"${token}\"" 
+      args="${args} \"${token}\""
       shift
   done
   eval "\"${exe_dir}/groupica\"" $args
 fi
 exit
-

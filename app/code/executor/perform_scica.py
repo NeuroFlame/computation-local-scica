@@ -1,12 +1,15 @@
 import os
 from nipype.interfaces import gift
+import logging
 
 # GICA DEFAULTS
 DEFAULT_DIM = 100
 DEFAULT_ALG = 16
 DEFAULT_ICA_PARAM_FILE = ''
 DEFAULT_OUT_DIR = '.'
-DEFAULT_DISPLAY_RESULTS = 1
+DEFAULT_DISPLAY_RESULTS = {
+    'formatName':'html'
+}
 DEFAULT_REFS = []
 DEFAULT_RUN_NAME = 'COINSTAC_SCICA'
 DEFAULT_GROUP_PCA_TYPE = 0
@@ -17,10 +20,10 @@ DEFAULT_SCALE_TYPE = 0
 DEFAULT_GROUP_ICA_TYPE = 'spatial'
 DEFAULT_WHICH_ANALYSIS = 1
 DEFAULT_MASK = ''
-DEFAULT_TR = 2
+DEFAULT_TR = [2]
 DEFAULT_DF= 20
 DEFAULT_PERFTYPE = 1
-DEFAULT_DUMMY_SCANS = 0
+DEFAULT_DUMMY_SCANS = [0]
 DEFAULT_PREFIX = "gica_cmd"
 DEFAULT_PCATYPE = "Standard"
 DEFAULT_DO_ESTIMATION = 1
@@ -40,7 +43,7 @@ DEFAULT_MST_OPTS = {}
 DEFAULT_DESIGN_MATRIX = []
 DEFAULT_REGRESSORS = []
 
-matlab_cmd = '/computation/GroupICATv4.0b_standalone_sep_10_2019/run_groupica.sh /usr/local/MATLAB/MATLAB_Runtime/v91/'
+matlab_cmd = '/computation/GroupICATv4.0b_standalone_sep_10_2019/run_groupica.sh /usr/local/MATLAB/MATLAB_Runtime/R2022b/'
 
 
 def gift_gica(

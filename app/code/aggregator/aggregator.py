@@ -3,7 +3,7 @@ from nvflare.apis.shareable import Shareable
 from nvflare.apis.fl_context import FLContext
 from nvflare.app_common.abstract.aggregator import Aggregator
 from nvflare.apis.fl_constant import ReservedKey
-from .calculate_global_values import calculate_global_values
+#from .calculate_global_values import calculate_global_values
 
 class ScicaAggregator(Aggregator):
     """

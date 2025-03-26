@@ -15,9 +15,6 @@ def validate_run_input(in_files: list, data_path: str, computation_parameters: D
             if not os.path.exists(filename):
                 raise(ValueError("Input nifti %s does not exist" % filename))
 
-        # Check parameters        
-        if not type(computation_parameters['refFiles']) str
-
         # If all checks pass
         return True
 

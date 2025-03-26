@@ -7,7 +7,7 @@ from nvflare.apis.shareable import Shareable
 from nvflare.apis.fl_context import FLContext
 from nvflare.apis.signal import Signal
 from utils.utils import get_data_directory_path, get_output_directory_path
-from .perform_scica import perform_scica
+from .perform_scica import gift_gica
 from .json_to_html_results import json_to_html_results
 from .validate_run_input import validate_run_input
 
@@ -58,10 +58,7 @@ class ScicaExecutor(Executor):
         abort_signal: Signal,
     ) -> Shareable:
         """
-        Perform the ridge regression on the merged site data.
-
-        This method assumes that data has been validated and is ready for regression analysis.
-        It reads the covariates and dependent data, runs the regression, and saves the results.
+        Perform spatially constrained ICA on local data.
 
         Returns:
             A Shareable object with the regression results.
@@ -70,15 +67,14 @@ class ScicaExecutor(Executor):
         data_directory = get_data_directory_path(fl_ctx)
         in_files = list(glob.glob(os.path.join(data_directory, "*.nii*")))
         out_dir = get_output_directory_path(fl_ctx)
-        #covariates_path = os.path.join(data_directory, "covariates.csv")
-        #data_path = os.path.join(data_directory, "data.csv")
+
         local_parameters_path = os.path.join(data_directory, "parameters.json")
         local_parameters = json.load(open(local_parameters_path, "r"))
         computation_parameters = fl_ctx.get_peer_context().get_prop("COMPUTATION_PARAMETERS")
         log_path = os.path.join(get_output_directory_path(fl_ctx), "validation_log.txt")
         
         # Validate the run inputs (covariates, dependent data, and parameters)
-        is_valid = validate_run_input(in_files, data_path, computation_parameters, log_path)
+        is_valid = validate_run_input(in_files, data_directory, computation_parameters, log_path)
         #is_valid = True
         if not is_valid:
             # Halt execution if validation fails
@@ -98,8 +94,8 @@ class ScicaExecutor(Executor):
         dummy_scans = local_parameters["dummy_scans"]
         prefix = local_parameters["prefix"]
         
-        # Perform ridge regression using the specified covariates and dependent variables
-        result = perform_scica(in_files=in_files, 
+        # Perform GICA using Nipype functions
+        result = gift_gica(in_files=in_files, 
                                refFiles=refFiles, 
                                out_dir=out_dir,
                                preproc_type=preproc_type, 
@@ -109,16 +105,15 @@ class ScicaExecutor(Executor):
                                perfType=perfType,
                                dummy_scans=dummy_scans,
                                prefix=prefix)
-        #perform_ridge_regression(covariates_path, data_path, covariates_headers, data_headers)
         
-        # Save the results in both JSON and HTML format
-        #self.save_json(result, "site_regression_result.json", fl_ctx)
-        #html = json_to_html_results(result, "Site Regression Results")
-        #self.save_html(html, "site_regression_result.html", fl_ctx)
 
         # Prepare the Shareable object to send the result to other components
+
         outgoing_shareable = Shareable()
-        outgoing_shareable["result"] = result
+        # For now, there is nothing to send to the aggregator
+        # In the future, we may want to send local files to compute a mean map
+        # or some other aggregate statistic
+        outgoing_shareable["result"] = {}
         return outgoing_shareable
 
     def _do_task_save_scica_results(
