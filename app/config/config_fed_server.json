@@ -7,18 +7,16 @@
   "task_result_filters": [],
   "components": [
     {
-      "id": "srr_aggregator",
-      "path": "aggregator.aggregator.SrrAggregator",
+      "id": "scica_aggregator",
+      "path": "aggregator.aggregator.ScicaAggregator",
       "args": {}
     }
-
   ],
   "workflows": [
     {
-      "id": "srr_workflow",
-      "path": "controller.controller.SrrController",
-      "args": {
-      }
+      "id": "scica_workflow",
+      "path": "controller.controller.ScicaController",
+      "args": {}
     }
   ]
 }

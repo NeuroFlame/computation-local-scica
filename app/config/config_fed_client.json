@@ -3,11 +3,10 @@
   "executors": [
     {
       "tasks": [
-        "perform_regression",
-        "save_global_regression_results"
+        "perform_scica"
       ],
       "executor": {
-        "path": "executor.executor.SrrExecutor",
+        "path": "executor.executor.ScicaExecutor",
         "args": {}
       }
     }

@@ -1,25 +1,28 @@
 import logging
 import os
 import json
+import glob
 from nvflare.apis.executor import Executor
 from nvflare.apis.shareable import Shareable
 from nvflare.apis.fl_context import FLContext
 from nvflare.apis.signal import Signal
 from utils.utils import get_data_directory_path, get_output_directory_path
-from .perform_ridge_regression import perform_ridge_regression
+from .perform_scica import perform_scica
 from .json_to_html_results import json_to_html_results
 from .validate_run_input import validate_run_input
 
-# Task names
-TASK_NAME_PERFORM_REGRESSION = "perform_regression"
-TASK_NAME_SAVE_GLOBAL_REGRESSION_RESULTS = "save_global_regression_results"
+GIFT_TEMPLATE_PATH = "/computation/gift/GroupICAT/icatb/icatb_templates"
 
-class SrrExecutor(Executor):
+# Task names
+TASK_NAME_PERFORM_COMPUTATION = "perform_scica"
+TASK_NAME_SAVE_AGGREGATE_RESULTS = "save_aggregate_scica_results"
+
+class ScicaExecutor(Executor):
     def __init__(self):
         """
         Initialize the SrrExecutor. This constructor sets up the logger.
         """
-        logging.info("SrrExecutor initialized")
+        logging.info("ScicaExecutor initialized")
     
     def execute(
         self,
@@ -40,15 +43,15 @@ class SrrExecutor(Executor):
         Returns:
             A Shareable object containing results of the task.
         """
-        if task_name == TASK_NAME_PERFORM_REGRESSION:
-            return self._do_task_perform_regression(shareable, fl_ctx, abort_signal)
-        elif task_name == TASK_NAME_SAVE_GLOBAL_REGRESSION_RESULTS:
-            return self._do_task_save_global_regression_results(shareable, fl_ctx, abort_signal)
+        if task_name == TASK_NAME_PERFORM_COMPUTATION:
+            return self._do_task_perform_scica(shareable, fl_ctx, abort_signal)
+        elif task_name == TASK_NAME_SAVE_AGGREGATE_RESULTS:
+            return self._do_task_save_scica_results(shareable, fl_ctx, abort_signal)
         else:
             # Raise an error if the task name is unknown
             raise ValueError(f"Unknown task name: {task_name}")
         
-    def _do_task_perform_regression(
+    def _do_task_perform_scica(
         self,
         shareable: Shareable,
         fl_ctx: FLContext,
@@ -65,42 +68,68 @@ class SrrExecutor(Executor):
         """
         # Paths to data directories and logs
         data_directory = get_data_directory_path(fl_ctx)
-        covariates_path = os.path.join(data_directory, "covariates.csv")
-        data_path = os.path.join(data_directory, "data.csv")
+        in_files = list(glob.glob(os.path.join(data_directory, "*.nii*")))
+        out_dir = get_output_directory_path(fl_ctx)
+        #covariates_path = os.path.join(data_directory, "covariates.csv")
+        #data_path = os.path.join(data_directory, "data.csv")
+        local_parameters_path = os.path.join(data_directory, "parameters.json")
+        local_parameters = json.load(open(local_parameters_path, "r"))
         computation_parameters = fl_ctx.get_peer_context().get_prop("COMPUTATION_PARAMETERS")
         log_path = os.path.join(get_output_directory_path(fl_ctx), "validation_log.txt")
         
         # Validate the run inputs (covariates, dependent data, and parameters)
-        is_valid = validate_run_input(covariates_path, data_path, computation_parameters, log_path)
+        is_valid = validate_run_input(in_files, data_path, computation_parameters, log_path)
+        #is_valid = True
         if not is_valid:
             # Halt execution if validation fails
             raise ValueError(f"Invalid run input. Check validation log at {log_path}")
         
-        # Extract covariates and dependent headers from computation parameters
-        covariates_headers = computation_parameters["Covariates"]
-        data_headers = computation_parameters["Dependents"]
+        # Extract options for cleaner pass to function
+        refFiles = local_parameters["refFiles"]
+        if not os.path.exists(refFiles) and "neuromark" in refFiles.lower():
+            if '.nii' not in refFiles:
+                refFiles = refFiles + '.nii'
+            refFiles = os.path.join(GIFT_TEMPLATE_PATH, refFiles)
+        preproc_type = local_parameters["preproc_type"]
+        scaleType = local_parameters["scaleType"]
+        mask = local_parameters["mask"]
+        TR = local_parameters["TR"]
+        perfType = local_parameters["perfType"]
+        dummy_scans = local_parameters["dummy_scans"]
+        prefix = local_parameters["prefix"]
         
         # Perform ridge regression using the specified covariates and dependent variables
-        result = perform_ridge_regression(covariates_path, data_path, covariates_headers, data_headers)
+        result = perform_scica(in_files=in_files, 
+                               refFiles=refFiles, 
+                               out_dir=out_dir,
+                               preproc_type=preproc_type, 
+                               scaleType=scaleType,
+                               mask=mask,
+                               TR=TR,
+                               perfType=perfType,
+                               dummy_scans=dummy_scans,
+                               prefix=prefix)
+        #perform_ridge_regression(covariates_path, data_path, covariates_headers, data_headers)
         
         # Save the results in both JSON and HTML format
-        self.save_json(result, "site_regression_result.json", fl_ctx)
-        html = json_to_html_results(result, "Site Regression Results")
-        self.save_html(html, "site_regression_result.html", fl_ctx)
+        #self.save_json(result, "site_regression_result.json", fl_ctx)
+        #html = json_to_html_results(result, "Site Regression Results")
+        #self.save_html(html, "site_regression_result.html", fl_ctx)
 
         # Prepare the Shareable object to send the result to other components
         outgoing_shareable = Shareable()
         outgoing_shareable["result"] = result
         return outgoing_shareable
 
-    def _do_task_save_global_regression_results(
+    def _do_task_save_scica_results(
         self,
         shareable: Shareable,
         fl_ctx: FLContext,
         abort_signal: Signal
     ) -> Shareable:
         """
-        Save the global regression results to a file.
+        For SCICA this currently does nothing; however, I am leaving this function
+        in case we want to implement some kind of aggregation in the near future.
 
         This method retrieves the global regression results from the Shareable object,
         saves them in JSON and HTML format, and returns a Shareable object.
@@ -108,41 +137,7 @@ class SrrExecutor(Executor):
         # Retrieve the global regression result from the Shareable object
         result = shareable.get("result")
         
-        # Save the global regression results
-        self.save_json(result, "global_regression_result.json", fl_ctx)
-        html = json_to_html_results(result, "Global Regression Results")
-        self.save_html(html, "global_regression_result.html", fl_ctx)
+        
         
         return Shareable()
 
-
-# Utility methods for saving JSON and HTML files
-    def save_json(self, data: dict, filename: str, fl_ctx: FLContext) -> None:
-        """
-        Save a dictionary as a JSON file in the output directory.
-
-        Parameters:
-            data: The dictionary to be saved.
-            filename: The name of the JSON file.
-            fl_ctx: The federated learning context.
-        """
-        # Get the output directory path and save the JSON file
-        output_dir = get_output_directory_path(fl_ctx)
-        output_path = os.path.join(output_dir, filename)
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=4)
-
-    def save_html(self, data: str, filename: str, fl_ctx: FLContext) -> None:
-        """
-        Save a string as an HTML file in the output directory.
-
-        Parameters:
-            data: The string content to be saved.
-            filename: The name of the HTML file.
-            fl_ctx: The federated learning context.
-        """
-        # Get the output directory path and save the HTML file
-        output_dir = get_output_directory_path(fl_ctx)
-        output_path = os.path.join(output_dir, filename)
-        with open(output_path, 'w') as f:
-            f.write(data)

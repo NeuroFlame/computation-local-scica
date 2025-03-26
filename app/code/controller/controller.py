@@ -69,7 +69,7 @@ class ScicaController(Controller):
         self._broadcast_task(
             task_name=TASK_NAME_PERFORM_COMPUTATION,
             data=Shareable(),
-            result_cb=self._accept_site_regression_result,
+            result_cb=self._accept_site_scica_result,
             fl_ctx=fl_ctx,
             abort_signal=abort_signal,
         )
@@ -86,7 +86,7 @@ class ScicaController(Controller):
             abort_signal=abort_signal,
         )
 
-    def _accept_site_regression_result(self, client_task: ClientTask, fl_ctx: FLContext) -> bool:
+    def _accept_site_scica_result(self, client_task: ClientTask, fl_ctx: FLContext) -> bool:
         """
         Callback method that processes each site's regression result and sends it
         to the aggregator for aggregation.
