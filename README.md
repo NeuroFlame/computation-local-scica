@@ -87,8 +87,8 @@ Currently, `parameters.json` is considered a local file, so each site can specif
 | Variable Name | Type | Description | Allowed Options | Default |
 | ------ | ------ | ------ | ------ | ------ | 
 | `refFiles` | string | The template used as reference for spatially constrained ICA. | Any of the existing templates in GIFT can be specified just by providing the name of the template, with the most commonly used templates being `Neuromark_fMRI_1.0` and `Neuromark_fMRI_2.0`. Additionally a path to a locally provided template can be used, as long as the path is provided in terms of the docker image filesystem |
-| `preproc_type` | integer | The type of subject-specific additional preprocessing to do prior to running ICA. | TBD | 1 | 
-| `scaleType` | integer | The type of scaling to apply to components prior to saving. | TBD | 0 | 
+| `preproc_type` | integer | The type of subject-specific additional preprocessing to do prior to running ICA. | 1 - remove mean per timepoint, 2 - remove mean per voxel, 3 - intensity normalization, 4- variance normalization | 1 | 
+| `scaleType` | integer | The type of scaling to apply to components prior to saving. | 0 - don't scale, 1 - scale to percent signal change, 2 - scale to z-scores | 0 | 
 | `mask` | string | To have GIFT automatically compute masks, use either the `default` or `default&icv` functions, which compute a mask based on the mean fMRI image (with the ICV image removing eyes); however, these will compute masks locally and may thus differ slightly between sites. A path to a NIFTI file may be provided as long as it is accessible to the computation. The path must be specified in terms of the docker filesystem. | default&ICV |
 | `TR` | list<float> | The repetition time for each scan as a list of list of floats | List of floats, where the number of TRs is either 1 or equal to the number of subjects | [2] |
 | `perfType` | int | the type of performance mode to use in GIFT | | 1 |
