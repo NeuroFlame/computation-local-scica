@@ -63,7 +63,15 @@ run on individual participants without sharing information between sites.
         * `gica_cmd_tmap_component_ica_s1_.nii` - a NIFTI file containing the T-maps for of the spatial maps aggregated across the first session.
         * `gica_cmd_tmap_timecourses_ica_s1_.nii` - a NIFTI file containing the T-maps for of the time courses aggregated across the first session.
         associated with each component for each subject.
-        * `gica_cmdMask.nii` - 
+        * `gica_cmdMask.nii` - a NIFTI file containing the created or copied mask for the participant.
+        * `gica_cmdSubject.mat` - a MATLAB binary file containing a 5 variables:
+            - `SPMFiles` - a list of SPM files provided
+            - `files` - a struct with the field `name` that has the input filenames for each participant
+            - `modalityType` - a string indicating the modality type
+            - `numOfSess` - an integer containing the number of sessions
+            - `numOfSub` - an integer containing the number of subjects
+        * `gica_cmd_gica_results` - a folder containing the HTML report and images.
+        * `gica_cmd_postprocess_results` - a folder containing subject-specific post-processing results such as static FNCs and spectra.
 #### Data Format Specification
 
 The computation requires at minimum one valid NIFTI (.nii or .nii.gz) file located in the TOP LEVEL of the input folder, as well
@@ -80,15 +88,37 @@ Currently, `parameters.json` is considered a local file, so each site can specif
 | ------ | ------ | ------ | ------ | ------ | 
 | `refFiles` | string | The template used as reference for spatially constrained ICA. | Any of the existing templates in GIFT can be specified just by providing the name of the template, with the most commonly used templates being `Neuromark_fMRI_1.0` and `Neuromark_fMRI_2.0`. Additionally a path to a locally provided template can be used, as long as the path is provided in terms of the docker image filesystem |
 | `preproc_type` | integer | The type of subject-specific additional preprocessing to do prior to running ICA. | TBD | 1 | 
-| `scaleType` | integer | TBD | 0 | 
+| `scaleType` | integer | The type of scaling to apply to components prior to saving. | TBD | 0 | 
 | `mask` | string | To have GIFT automatically compute masks, use either the `default` or `default&icv` functions, which compute a mask based on the mean fMRI image (with the ICV image removing eyes); however, these will compute masks locally and may thus differ slightly between sites. A path to a NIFTI file may be provided as long as it is accessible to the computation. The path must be specified in terms of the docker filesystem. | default&ICV |
+| `TR` | list<float> | The repetition time for each scan as a list of list of floats | List of floats, where the number of TRs is either 1 or equal to the number of subjects | [2] |
+| `perfType` | int | the type of performance mode to use in GIFT | | 1 |
+| `dummy_scans`| list<int> | the number of scans to remove from each participant | a list of integers, either one integer which is applied to all subjects, or a list with a number equal to the number of subjects | [0] |
+| `prefix` | string | the prefix to append to filenames prior to saving | any valid character string | "gica_cmd" |
 
 #### Assumptions
 
+For now, it is assumed that each site has NIFTI files located at the TOP LEVEL of their data folder, and that all subjects ought to be included in the analysis. ALL .NIFTI files at the top level of the folder will be included.
+
+It is assumed that standard preprocessing (warping, smoothing ,slice-timing ,etc) has been performed on all data prior to running ICA.
+
+It is assumed that each site has their own set of parameters and will agree on a set of parameters that will allow for data sharing at subsequent stages if desirable. In the future some options may be moved to the server to configure them globally.
+
 #### Example
 
-
-
-#### Output Description
+```
+{
+    "refFiles": "Neuromark_fMRI_1.0",
+    "preproc_type": 1,
+    "scaleType": 0,
+    "mask": "default&icv",
+    "TR": [2],
+    "perfType": 1,
+    "dummy_scans": [0],
+    "prefix": "gica_cmd"
+}
+```
 
 # TODO
+
+* Discuss requirement of BIDS formatting for input data and change computation to use a BIDS parser for more robust data parsing.
+* Discuss sharing of local results and manual merging to create an aggregate result if desired. 

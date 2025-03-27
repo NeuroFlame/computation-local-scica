@@ -3,7 +3,8 @@
   "executors": [
     {
       "tasks": [
-        "perform_scica"
+        "perform_scica",
+        "save_aggregate_scica_results"
       ],
       "executor": {
         "path": "executor.executor.ScicaExecutor",
