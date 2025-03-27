@@ -91,7 +91,7 @@ Currently, `parameters.json` is considered a local file, so each site can specif
 | `scaleType` | integer | The type of scaling to apply to components prior to saving. | 0 - don't scale, 1 - scale to percent signal change, 2 - scale to z-scores | 0 | 
 | `mask` | string | To have GIFT automatically compute masks, use either the `default` or `default&icv` functions, which compute a mask based on the mean fMRI image (with the ICV image removing eyes); however, these will compute masks locally and may thus differ slightly between sites. A path to a NIFTI file may be provided as long as it is accessible to the computation. The path must be specified in terms of the docker filesystem. | default&ICV |
 | `TR` | list<float> | The repetition time for each scan as a list of list of floats | List of floats, where the number of TRs is either 1 or equal to the number of subjects | [2] |
-| `perfType` | int | the type of performance mode to use in GIFT | | 1 |
+| `perfType` | int | the type of performance mode to use in GIFT | 1 - maximize performance, 2 - less memory usage, 3 - user specified settings (NOT RECOMMENDED) | 1 |
 | `dummy_scans`| list<int> | the number of scans to remove from each participant | a list of integers, either one integer which is applied to all subjects, or a list with a number equal to the number of subjects | [0] |
 | `prefix` | string | the prefix to append to filenames prior to saving | any valid character string | "gica_cmd" |
 
