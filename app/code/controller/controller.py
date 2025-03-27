@@ -75,16 +75,16 @@ class ScicaController(Controller):
         )
 
         # Aggregate results from all sites...?
-        aggregate_result = self.srr_aggregator.aggregate(fl_ctx)
+        #aggregate_result = self.srr_aggregator.aggregate(fl_ctx)
 
         # Broadcast the global aggregated results to all sites
-        self._broadcast_task(
-            task_name=TASK_NAME_SAVE_AGGREGATE_RESULTS,
-            data=aggregate_result,
-            result_cb=None,
-            fl_ctx=fl_ctx,
-            abort_signal=abort_signal,
-        )
+        #self._broadcast_task(
+        #    task_name=TASK_NAME_SAVE_AGGREGATE_RESULTS,
+        #    data=aggregate_result,
+        #    result_cb=None,
+        #    fl_ctx=fl_ctx,
+        #    abort_signal=abort_signal,
+        #)
 
     def _accept_site_scica_result(self, client_task: ClientTask, fl_ctx: FLContext) -> bool:
         """
