@@ -6,7 +6,7 @@ from typing import Dict, Any
 def validate_run_input(in_files: list, data_path: str, computation_parameters: Dict[str, Any], log_path: str) -> bool:
     try:
 
-        # Make sure data files exist.
+        # Make sure data files exist, and at least one is provided.
         # Currently this shouldn't be a problem because we glob from the 
         # filesystem
         if len(in_files) == 0:
@@ -14,6 +14,8 @@ def validate_run_input(in_files: list, data_path: str, computation_parameters: D
         for filename in in_files:
             if not os.path.exists(filename):
                 raise(ValueError("Input nifti %s does not exist" % filename))
+
+        
 
         # If all checks pass
         return True

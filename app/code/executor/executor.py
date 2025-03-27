@@ -8,9 +8,10 @@ from nvflare.apis.fl_context import FLContext
 from nvflare.apis.signal import Signal
 from utils.utils import get_data_directory_path, get_output_directory_path
 from .perform_scica import gift_gica
-from .json_to_html_results import json_to_html_results
+
 from .validate_run_input import validate_run_input
 
+# Constants
 GIFT_TEMPLATE_PATH = "/computation/gift/GroupICAT/icatb/icatb_templates"
 
 # Task names
@@ -66,6 +67,8 @@ class ScicaExecutor(Executor):
         # Paths to data directories and logs
         data_directory = get_data_directory_path(fl_ctx)
         in_files = list(glob.glob(os.path.join(data_directory, "*.nii*")))
+        logging.info("CHECKING TO MAKE SURE LOGS ARE WORKING")
+        logging.info("IN FILES " + str(in_files))
         out_dir = get_output_directory_path(fl_ctx)
 
         local_parameters_path = os.path.join(data_directory, "parameters.json")
@@ -74,7 +77,7 @@ class ScicaExecutor(Executor):
         log_path = os.path.join(get_output_directory_path(fl_ctx), "validation_log.txt")
         
         # Validate the run inputs (covariates, dependent data, and parameters)
-        is_valid = validate_run_input(in_files, data_directory, computation_parameters, log_path)
+        is_valid = validate_run_input(in_files, data_directory, local_parameters, log_path)
         #is_valid = True
         if not is_valid:
             # Halt execution if validation fails

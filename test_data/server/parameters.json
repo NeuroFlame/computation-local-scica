@@ -1,10 +1,1 @@
-{
-    "refFiles": "Neuromark_fMRI_1.0.nii",
-    "preproc_type": 1,
-    "scaleType": 0,
-    "mask": "default&icv",
-    "TR": [2],
-    "perfType": 1,
-    "dummy_scans": [0],
-    "prefix": "gica_cmd"
-}
+{}
