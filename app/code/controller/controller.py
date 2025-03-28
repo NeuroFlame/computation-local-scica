@@ -21,9 +21,9 @@ class ScicaController(Controller):
     ### Framework-Specific Setup: No modification needed ###
     def __init__(
         self,
-        min_clients: int = 1,
+        min_clients: int = 3,
         wait_time_after_min_received: int = 10,
-        task_timeout: int = 1,
+        task_timeout: int = 0,
     ):
         """
         Initializes the SrrController with specific parameters for task broadcasting.

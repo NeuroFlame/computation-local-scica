@@ -71,7 +71,7 @@ class ScicaExecutor(Executor):
         logging.info("IN FILES " + str(in_files))
         out_dir = get_output_directory_path(fl_ctx)
 
-        local_parameters_path = os.path.join(data_directory, "parameters.json")
+        local_parameters_path = os.path.join(data_directory, "local_parameters.json")
         local_parameters = json.load(open(local_parameters_path, "r"))
         computation_parameters = fl_ctx.get_peer_context().get_prop("COMPUTATION_PARAMETERS")
         log_path = os.path.join(get_output_directory_path(fl_ctx), "validation_log.txt")
