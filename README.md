@@ -18,6 +18,8 @@ run on individual participants without sharing information between sites.
         files which match the pattern `*.nii*` 
    - The computation resolves the template argument to either use a preset template included within
         GIFT, or to use a template hosted on the local filesystem. 
+   - The computation uses local parameters from each site stored in `local_parameters.json`. If the desire
+        is to synchronize parameters across sites, this must be done manually.
 
 2. **Local Spatially Constrained ICA**:
    - Local spatially constrained ICA is then performed using the given template and locally specified
