@@ -1,4 +1,4 @@
-FROM python:3.8-buster
+FROM python:3.8
 
 # Install MCR
 RUN export MCR_CACHE_VERBOSE=true
@@ -13,9 +13,11 @@ RUN apt-get update -y \
  && mkdir /computation/groupica_v4.0.4.11 \
  && rm -rf /tmp_mcr \
  && wget -P /computation/groupica_v4.0.4.11/ https://trends-public-website-fileshare.s3.amazonaws.com/public_website_files/software/gift/software/bids/v4.0.5.2M2022b/groupica
-
+RUN apt-get install -y libstdc++*-dev 
 WORKDIR /computation
-RUN chmod +x /computation/groupica_v4.0.4.11/groupica
+COPY ./GroupICATv4.0b_standalone_sep_10_2019 /computation/GroupICATv4.0b_standalone_sep_10_2019
+RUN cp /computation/groupica_v4.0.4.11/groupica /computation/GroupICATv4.0b_standalone_sep_10_2019
+RUN chmod +x /computation/GroupICATv4.0b_standalone_sep_10_2019/groupica
 
 # Environment Variables for MATLAB
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu/:/usr/local/MATLAB/MATLAB_Runtime/R2022b/:/usr/local/MATLAB/MATLAB_Runtime/R2022b/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/R2022b/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/R2022b/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/R2022b/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:/usr/local/MATLAB/MATLAB_Runtime/R2022b/sys/java/jre/glnxa64/jre/lib/amd64/server:/usr/local/MATLAB/MATLAB_Runtime/R2022b/sys/java/jre/glnxa64/jre/lib/amd64
@@ -32,10 +34,6 @@ ENV GICA_INSTALL_DIR=/computation/groupica_v4.0.4.11
 RUN python3 -m pip install -U pip
 RUN python3 -m pip install -U setuptools
 
-# Clone GIFT repo
-RUN git clone https://github.com/trendscenter/gift.git
-COPY ./gift/GroupICAT/icatb/nipype-0.10.0/nipype/interfaces/gift /usr/local/lib/python3.8/site-packages/nipype/interfaces/gift
-
 
 # Set working directory
 WORKDIR /workspace/
@@ -45,6 +43,11 @@ COPY ./requirements.txt /workspace/requirements.txt
 
 # Install dependencies from requirements.txt
 RUN python3 -m pip install -r /workspace/requirements.txt
+# Clone GIFT repo
+RUN git clone -b brad_fix_nipype https://github.com/trendscenter/gift.git /computation/gift
+
+RUN cp -r /computation/gift/GroupICAT/icatb/nipype-0.10.0/nipype/interfaces/gift /usr/local/lib/python3.8/site-packages/nipype/interfaces/gift
+
 
 # Copy the rest of the application files
 COPY ./app/ /workspace/app/

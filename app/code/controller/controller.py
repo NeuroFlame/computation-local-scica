@@ -21,9 +21,9 @@ class ScicaController(Controller):
     ### Framework-Specific Setup: No modification needed ###
     def __init__(
         self,
-        min_clients: int = 2,
+        min_clients: int = 1,
         wait_time_after_min_received: int = 10,
-        task_timeout: int = 0,
+        task_timeout: int = 1,
     ):
         """
         Initializes the SrrController with specific parameters for task broadcasting.
@@ -75,16 +75,16 @@ class ScicaController(Controller):
         )
 
         # Aggregate results from all sites...?
-        #aggregate_result = self.srr_aggregator.aggregate(fl_ctx)
+        aggregate_result = self.srr_aggregator.aggregate(fl_ctx)
 
         # Broadcast the global aggregated results to all sites
-        #self._broadcast_task(
-        #    task_name=TASK_NAME_SAVE_AGGREGATE_RESULTS,
-        #    data=aggregate_result,
-        #    result_cb=None,
-        #    fl_ctx=fl_ctx,
-        #    abort_signal=abort_signal,
-        #)
+        self._broadcast_task(
+            task_name=TASK_NAME_SAVE_AGGREGATE_RESULTS,
+            data=aggregate_result,
+            result_cb=None,
+            fl_ctx=fl_ctx,
+            abort_signal=abort_signal,
+        )
 
     def _accept_site_scica_result(self, client_task: ClientTask, fl_ctx: FLContext) -> bool:
         """
